@@ -68,6 +68,7 @@ Partial Class Form1
         Me.Timer1 = New System.Windows.Forms.Timer(Me.components)
         Me.Timer2 = New System.Windows.Forms.Timer(Me.components)
         Me.SweepStateL = New System.Windows.Forms.Label()
+        Me.ModeButton = New System.Windows.Forms.Button()
         Me.SuspendLayout()
         '
         'Label1
@@ -77,7 +78,7 @@ Partial Class Form1
         Me.Label1.Location = New System.Drawing.Point(27, 24)
         Me.Label1.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.Label1.Name = "Label1"
-        Me.Label1.Size = New System.Drawing.Size(67, 12)
+        Me.Label1.Size = New System.Drawing.Size(75, 13)
         Me.Label1.TabIndex = 0
         Me.Label1.Text = "MagnetType"
         '
@@ -87,7 +88,7 @@ Partial Class Form1
         Me.Label2.Location = New System.Drawing.Point(50, 54)
         Me.Label2.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.Label2.Name = "Label2"
-        Me.Label2.Size = New System.Drawing.Size(42, 12)
+        Me.Label2.Size = New System.Drawing.Size(48, 13)
         Me.Label2.TabIndex = 1
         Me.Label2.Text = "Magnet"
         '
@@ -97,7 +98,7 @@ Partial Class Form1
         Me.Label3.Location = New System.Drawing.Point(62, 80)
         Me.Label3.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.Label3.Name = "Label3"
-        Me.Label3.Size = New System.Drawing.Size(29, 12)
+        Me.Label3.Size = New System.Drawing.Size(33, 13)
         Me.Label3.TabIndex = 2
         Me.Label3.Text = "電源"
         '
@@ -107,7 +108,7 @@ Partial Class Form1
         Me.Label4.Location = New System.Drawing.Point(43, 206)
         Me.Label4.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.Label4.Name = "Label4"
-        Me.Label4.Size = New System.Drawing.Size(53, 12)
+        Me.Label4.Size = New System.Drawing.Size(59, 13)
         Me.Label4.TabIndex = 3
         Me.Label4.Text = "HighLimit"
         '
@@ -117,7 +118,7 @@ Partial Class Form1
         Me.Label5.Location = New System.Drawing.Point(43, 232)
         Me.Label5.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.Label5.Name = "Label5"
-        Me.Label5.Size = New System.Drawing.Size(50, 12)
+        Me.Label5.Size = New System.Drawing.Size(57, 13)
         Me.Label5.TabIndex = 4
         Me.Label5.Text = "LowLimit"
         '
@@ -127,7 +128,7 @@ Partial Class Form1
         Me.Label6.Location = New System.Drawing.Point(52, 154)
         Me.Label6.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.Label6.Name = "Label6"
-        Me.Label6.Size = New System.Drawing.Size(41, 12)
+        Me.Label6.Size = New System.Drawing.Size(46, 13)
         Me.Label6.TabIndex = 5
         Me.Label6.Text = "ヒーター"
         '
@@ -137,7 +138,7 @@ Partial Class Form1
         Me.Label7.Location = New System.Drawing.Point(26, 262)
         Me.Label7.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.Label7.Name = "Label7"
-        Me.Label7.Size = New System.Drawing.Size(69, 12)
+        Me.Label7.Size = New System.Drawing.Size(77, 13)
         Me.Label7.TabIndex = 6
         Me.Label7.Text = "スイープレート"
         '
@@ -148,7 +149,7 @@ Partial Class Form1
         Me.MagnetTypeL.Location = New System.Drawing.Point(106, 24)
         Me.MagnetTypeL.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.MagnetTypeL.Name = "MagnetTypeL"
-        Me.MagnetTypeL.Size = New System.Drawing.Size(11, 12)
+        Me.MagnetTypeL.Size = New System.Drawing.Size(14, 13)
         Me.MagnetTypeL.TabIndex = 7
         Me.MagnetTypeL.Text = "-"
         '
@@ -158,7 +159,7 @@ Partial Class Form1
         Me.MagFieldL.Location = New System.Drawing.Point(106, 54)
         Me.MagFieldL.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.MagFieldL.Name = "MagFieldL"
-        Me.MagFieldL.Size = New System.Drawing.Size(11, 12)
+        Me.MagFieldL.Size = New System.Drawing.Size(14, 13)
         Me.MagFieldL.TabIndex = 8
         Me.MagFieldL.Text = "-"
         '
@@ -197,7 +198,7 @@ Partial Class Form1
         Me.SiftMagButton.Location = New System.Drawing.Point(188, 143)
         Me.SiftMagButton.Margin = New System.Windows.Forms.Padding(2)
         Me.SiftMagButton.Name = "SiftMagButton"
-        Me.SiftMagButton.Size = New System.Drawing.Size(56, 26)
+        Me.SiftMagButton.Size = New System.Drawing.Size(62, 26)
         Me.SiftMagButton.TabIndex = 12
         Me.SiftMagButton.Text = "SiftMag"
         Me.SiftMagButton.UseVisualStyleBackColor = True
@@ -207,7 +208,7 @@ Partial Class Form1
         Me.SiftZeroButton.Location = New System.Drawing.Point(254, 143)
         Me.SiftZeroButton.Margin = New System.Windows.Forms.Padding(2)
         Me.SiftZeroButton.Name = "SiftZeroButton"
-        Me.SiftZeroButton.Size = New System.Drawing.Size(56, 26)
+        Me.SiftZeroButton.Size = New System.Drawing.Size(68, 26)
         Me.SiftZeroButton.TabIndex = 13
         Me.SiftZeroButton.Text = "SiftZero"
         Me.SiftZeroButton.UseVisualStyleBackColor = True
@@ -254,7 +255,7 @@ Partial Class Form1
         Me.OUTFieldL.Location = New System.Drawing.Point(106, 80)
         Me.OUTFieldL.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.OUTFieldL.Name = "OUTFieldL"
-        Me.OUTFieldL.Size = New System.Drawing.Size(11, 12)
+        Me.OUTFieldL.Size = New System.Drawing.Size(14, 13)
         Me.OUTFieldL.TabIndex = 18
         Me.OUTFieldL.Text = "-"
         '
@@ -264,13 +265,13 @@ Partial Class Form1
         Me.OUTFieldVL.Location = New System.Drawing.Point(183, 80)
         Me.OUTFieldVL.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.OUTFieldVL.Name = "OUTFieldVL"
-        Me.OUTFieldVL.Size = New System.Drawing.Size(11, 12)
+        Me.OUTFieldVL.Size = New System.Drawing.Size(14, 13)
         Me.OUTFieldVL.TabIndex = 19
         Me.OUTFieldVL.Text = "-"
         '
         'Rate0TB
         '
-        Me.Rate0TB.Location = New System.Drawing.Point(207, 302)
+        Me.Rate0TB.Location = New System.Drawing.Point(175, 302)
         Me.Rate0TB.Margin = New System.Windows.Forms.Padding(2)
         Me.Rate0TB.Name = "Rate0TB"
         Me.Rate0TB.Size = New System.Drawing.Size(76, 19)
@@ -278,7 +279,7 @@ Partial Class Form1
         '
         'Rate1TB
         '
-        Me.Rate1TB.Location = New System.Drawing.Point(206, 324)
+        Me.Rate1TB.Location = New System.Drawing.Point(174, 324)
         Me.Rate1TB.Margin = New System.Windows.Forms.Padding(2)
         Me.Rate1TB.Name = "Rate1TB"
         Me.Rate1TB.Size = New System.Drawing.Size(76, 19)
@@ -290,9 +291,9 @@ Partial Class Form1
         Me.Range0L.Location = New System.Drawing.Point(50, 305)
         Me.Range0L.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.Range0L.Name = "Range0L"
-        Me.Range0L.Size = New System.Drawing.Size(107, 12)
+        Me.Range0L.Size = New System.Drawing.Size(14, 13)
         Me.Range0L.TabIndex = 22
-        Me.Range0L.Text = "aaaaaaaaaaaaaaaaa"
+        Me.Range0L.Text = "-"
         '
         'Range1L
         '
@@ -300,9 +301,9 @@ Partial Class Form1
         Me.Range1L.Location = New System.Drawing.Point(50, 327)
         Me.Range1L.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.Range1L.Name = "Range1L"
-        Me.Range1L.Size = New System.Drawing.Size(104, 12)
+        Me.Range1L.Size = New System.Drawing.Size(14, 13)
         Me.Range1L.TabIndex = 23
-        Me.Range1L.Text = "Label13aaaaaaaaaa"
+        Me.Range1L.Text = "-"
         '
         'Range2L
         '
@@ -310,13 +311,13 @@ Partial Class Form1
         Me.Range2L.Location = New System.Drawing.Point(50, 350)
         Me.Range2L.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.Range2L.Name = "Range2L"
-        Me.Range2L.Size = New System.Drawing.Size(98, 12)
+        Me.Range2L.Size = New System.Drawing.Size(14, 13)
         Me.Range2L.TabIndex = 24
-        Me.Range2L.Text = "Label14aaaaaaaaa"
+        Me.Range2L.Text = "-"
         '
         'Rate2TB
         '
-        Me.Rate2TB.Location = New System.Drawing.Point(206, 346)
+        Me.Rate2TB.Location = New System.Drawing.Point(174, 346)
         Me.Rate2TB.Margin = New System.Windows.Forms.Padding(2)
         Me.Rate2TB.Name = "Rate2TB"
         Me.Rate2TB.Size = New System.Drawing.Size(76, 19)
@@ -324,30 +325,30 @@ Partial Class Form1
         '
         'Rate0SETButton
         '
-        Me.Rate0SETButton.Location = New System.Drawing.Point(318, 301)
+        Me.Rate0SETButton.Location = New System.Drawing.Point(286, 301)
         Me.Rate0SETButton.Margin = New System.Windows.Forms.Padding(2)
         Me.Rate0SETButton.Name = "Rate0SETButton"
-        Me.Rate0SETButton.Size = New System.Drawing.Size(38, 18)
+        Me.Rate0SETButton.Size = New System.Drawing.Size(39, 20)
         Me.Rate0SETButton.TabIndex = 26
         Me.Rate0SETButton.Text = "SET"
         Me.Rate0SETButton.UseVisualStyleBackColor = True
         '
         'Rate1SETButton
         '
-        Me.Rate1SETButton.Location = New System.Drawing.Point(318, 324)
+        Me.Rate1SETButton.Location = New System.Drawing.Point(286, 324)
         Me.Rate1SETButton.Margin = New System.Windows.Forms.Padding(2)
         Me.Rate1SETButton.Name = "Rate1SETButton"
-        Me.Rate1SETButton.Size = New System.Drawing.Size(38, 18)
+        Me.Rate1SETButton.Size = New System.Drawing.Size(39, 20)
         Me.Rate1SETButton.TabIndex = 27
         Me.Rate1SETButton.Text = "SET"
         Me.Rate1SETButton.UseVisualStyleBackColor = True
         '
         'Rate2SETButton
         '
-        Me.Rate2SETButton.Location = New System.Drawing.Point(317, 346)
+        Me.Rate2SETButton.Location = New System.Drawing.Point(286, 346)
         Me.Rate2SETButton.Margin = New System.Windows.Forms.Padding(2)
         Me.Rate2SETButton.Name = "Rate2SETButton"
-        Me.Rate2SETButton.Size = New System.Drawing.Size(38, 18)
+        Me.Rate2SETButton.Size = New System.Drawing.Size(39, 20)
         Me.Rate2SETButton.TabIndex = 28
         Me.Rate2SETButton.Text = "SET"
         Me.Rate2SETButton.UseVisualStyleBackColor = True
@@ -368,47 +369,47 @@ Partial Class Form1
         Me.Label15.Location = New System.Drawing.Point(52, 284)
         Me.Label15.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.Label15.Name = "Label15"
-        Me.Label15.Size = New System.Drawing.Size(31, 12)
+        Me.Label15.Size = New System.Drawing.Size(34, 13)
         Me.Label15.TabIndex = 30
         Me.Label15.Text = "Rage"
         '
         'Label16
         '
         Me.Label16.AutoSize = True
-        Me.Label16.Location = New System.Drawing.Point(225, 284)
+        Me.Label16.Location = New System.Drawing.Point(193, 284)
         Me.Label16.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.Label16.Name = "Label16"
-        Me.Label16.Size = New System.Drawing.Size(29, 12)
+        Me.Label16.Size = New System.Drawing.Size(33, 13)
         Me.Label16.TabIndex = 31
         Me.Label16.Text = "Rate"
         '
         'Label17
         '
         Me.Label17.AutoSize = True
-        Me.Label17.Location = New System.Drawing.Point(285, 305)
+        Me.Label17.Location = New System.Drawing.Point(253, 305)
         Me.Label17.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.Label17.Name = "Label17"
-        Me.Label17.Size = New System.Drawing.Size(25, 12)
+        Me.Label17.Size = New System.Drawing.Size(28, 13)
         Me.Label17.TabIndex = 32
         Me.Label17.Text = "A/s"
         '
         'Label18
         '
         Me.Label18.AutoSize = True
-        Me.Label18.Location = New System.Drawing.Point(285, 327)
+        Me.Label18.Location = New System.Drawing.Point(253, 327)
         Me.Label18.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.Label18.Name = "Label18"
-        Me.Label18.Size = New System.Drawing.Size(25, 12)
+        Me.Label18.Size = New System.Drawing.Size(28, 13)
         Me.Label18.TabIndex = 33
         Me.Label18.Text = "A/s"
         '
         'Label19
         '
         Me.Label19.AutoSize = True
-        Me.Label19.Location = New System.Drawing.Point(285, 350)
+        Me.Label19.Location = New System.Drawing.Point(253, 350)
         Me.Label19.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.Label19.Name = "Label19"
-        Me.Label19.Size = New System.Drawing.Size(25, 12)
+        Me.Label19.Size = New System.Drawing.Size(28, 13)
         Me.Label19.TabIndex = 34
         Me.Label19.Text = "A/s"
         '
@@ -427,7 +428,7 @@ Partial Class Form1
         Me.UNIT.Location = New System.Drawing.Point(40, 110)
         Me.UNIT.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.UNIT.Name = "UNIT"
-        Me.UNIT.Size = New System.Drawing.Size(53, 12)
+        Me.UNIT.Size = New System.Drawing.Size(59, 13)
         Me.UNIT.TabIndex = 36
         Me.UNIT.Text = "表示単位"
         '
@@ -447,7 +448,7 @@ Partial Class Form1
         Me.HeaterStateL.Location = New System.Drawing.Point(106, 172)
         Me.HeaterStateL.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.HeaterStateL.Name = "HeaterStateL"
-        Me.HeaterStateL.Size = New System.Drawing.Size(59, 12)
+        Me.HeaterStateL.Size = New System.Drawing.Size(69, 13)
         Me.HeaterStateL.TabIndex = 38
         Me.HeaterStateL.Text = "Connected"
         '
@@ -474,15 +475,25 @@ Partial Class Form1
         Me.SweepStateL.Location = New System.Drawing.Point(183, 54)
         Me.SweepStateL.Margin = New System.Windows.Forms.Padding(2, 0, 2, 0)
         Me.SweepStateL.Name = "SweepStateL"
-        Me.SweepStateL.Size = New System.Drawing.Size(11, 12)
+        Me.SweepStateL.Size = New System.Drawing.Size(14, 13)
         Me.SweepStateL.TabIndex = 40
         Me.SweepStateL.Text = "-"
+        '
+        'ModeButton
+        '
+        Me.ModeButton.Location = New System.Drawing.Point(183, 20)
+        Me.ModeButton.Name = "ModeButton"
+        Me.ModeButton.Size = New System.Drawing.Size(67, 24)
+        Me.ModeButton.TabIndex = 41
+        Me.ModeButton.Text = "REMOTE"
+        Me.ModeButton.UseVisualStyleBackColor = True
         '
         'Form1
         '
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 12.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.ClientSize = New System.Drawing.Size(441, 400)
+        Me.Controls.Add(Me.ModeButton)
         Me.Controls.Add(Me.SweepStateL)
         Me.Controls.Add(Me.PauseButton)
         Me.Controls.Add(Me.HeaterStateL)
@@ -527,7 +538,7 @@ Partial Class Form1
         Me.Icon = CType(resources.GetObject("$this.Icon"), System.Drawing.Icon)
         Me.Margin = New System.Windows.Forms.Padding(2)
         Me.Name = "Form1"
-        Me.Text = "Form1"
+        Me.Text = "MagController-USB"
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -577,4 +588,5 @@ Partial Class Form1
     Friend WithEvents Timer1 As Timer
     Friend WithEvents Timer2 As Timer
     Friend WithEvents SweepStateL As Label
+    Friend WithEvents ModeButton As Button
 End Class

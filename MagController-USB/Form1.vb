@@ -43,29 +43,27 @@ Public Class Form1
             .StopBits = IO.Ports.StopBits.One
             .Handshake = IO.Ports.Handshake.None
             .NewLine = vbCrLf ' 改行コードの設定
-            .ReadTimeout = 10000 ' タイムアウト設定を10秒に調整
+            .ReadTimeout = 1000 ' タイムアウト設定を1秒に調整
         End With
         SerialPort1.Open()
-
-        ' 受信スレッドを開始
-        receiveThread = New Thread(AddressOf ReceiveData)
-        receiveThread.IsBackground = True
-        receiveThread.Start()
-
-        IdentifyMagnetController()
+        StartReceiveThread()
+        SendCommand("REMOTE")
         UpdateFieldInfo()
     End Sub
 
     ' フォームが閉じられるときにシリアルポートを閉じる処理
     Private Sub Form1_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
-        If SerialPort1 IsNot Nothing AndAlso SerialPort1.IsOpen Then
-            SerialPort1.Close()
-        End If
-
+        ' リモートモードを終了
+        SendCommand("LOCAL")
         ' 受信スレッドを停止
         cancelReceive = True
         If receiveThread IsNot Nothing AndAlso receiveThread.IsAlive Then
             receiveThread.Join() ' スレッドが安全に終了するのを待つ
+        End If
+
+        ' シリアルポートを閉じる
+        If SerialPort1 IsNot Nothing AndAlso SerialPort1.IsOpen Then
+            SerialPort1.Close()
         End If
     End Sub
 
@@ -97,8 +95,10 @@ Public Class Form1
 
     ' フィールド情報を取得しUIに反映するメソッド
     Private Sub UpdateFieldInfo()
+        DisableButtons()
         Try
             ' 各種フィールド情報をUSBシリアル通信で取得
+            Console.WriteLine("データ取得開始")
             CurrentField = SendQuery("IMAG?").Trim()
             OutputCurrent = SendQuery("IOUT?").Trim()
             OutputVoltage = SendQuery("VOUT?").Trim()
@@ -113,11 +113,37 @@ Public Class Form1
             UpperLimit = SendQuery("ULIM?").Trim()
             LowerLimit = SendQuery("LLIM?").Trim()
             SweepStatus = SendQuery("SWEEP?").Trim()
+            IdentifyMagnetController()
+
         Catch ex As Exception
             LogError($"Error retrieving field info: {ex.Message}")
+        Finally
+            EndReceiveThread()
         End Try
+        UpdateUI()
+    End Sub
 
-        UpdateUI() ' UIを最新の状態に更新
+    ' 受信スレッドを開始するメソッド
+    Private Sub StartReceiveThread()
+        Try
+            ' 受信スレッドを開始
+            cancelReceive = False
+            receiveThread = New Thread(AddressOf ReceiveData)
+            receiveThread.IsBackground = True
+            receiveThread.Start()
+        Catch ex As Exception
+            LogError($"Error starting receive thread: {ex.Message}")
+        End Try
+    End Sub
+
+    ' 受信スレッドを終了するメソッド
+    Private Sub EndReceiveThread()
+        ' 受信スレッドを終了
+        cancelReceive = True
+        If receiveThread IsNot Nothing AndAlso receiveThread.IsAlive Then
+            receiveThread.Join() ' スレッドが安全に終了するのを待つ
+        End If
+        Console.WriteLine("受信スレッド終了")
     End Sub
 
     ' UIを更新するメソッド
@@ -155,6 +181,14 @@ Public Class Form1
         HiTB.Text = UpperLimit
         LowTB.Text = LowerLimit
         SweepStateL.Text = SweepStatus
+        HiSETButton.Enabled = True
+        LowSetButton.Enabled = True
+        Rate0SETButton.Enabled = True
+        Rate1SETButton.Enabled = True
+        Rate2SETButton.Enabled = True
+        ModeButton.Enabled = True
+        UNITSETButton.Enabled = True
+        ReLoad.Enabled = True
 
         HeaterButton.Enabled = (CurrentField = OutputCurrent) ' フィールドが一致していればヒーターボタンを有効化
     End Sub
@@ -166,6 +200,14 @@ Public Class Form1
         GoToHiButton.Enabled = False
         GoToLowButton.Enabled = False
         HeaterButton.Enabled = False
+        HiSETButton.Enabled = False
+        LowSetButton.Enabled = False
+        Rate0SETButton.Enabled = False
+        Rate1SETButton.Enabled = False
+        Rate2SETButton.Enabled = False
+        ModeButton.Enabled = False
+        UNITSETButton.Enabled = False
+        ReLoad.Enabled = False
     End Sub
 
     ' シリアル通信でコマンドを送信し応答を受け取るメソッド
@@ -175,10 +217,9 @@ Public Class Form1
 
             ' コマンド送信
             SerialPort1.WriteLine(command)
-            Console.WriteLine("Command sent: " & command)
 
             ' 応答が受信されるまで待機
-            If Not receivedEvent.WaitOne(10000) Then
+            If Not receivedEvent.WaitOne(500) Then
                 Throw New TimeoutException("No response received within the timeout period.")
             End If
 
@@ -187,8 +228,6 @@ Public Class Form1
 
             ' イベントをリセットして次のコマンドに備える
             receivedEvent.Reset()
-
-            Console.WriteLine("Response received: " & response)
             Return response
         End SyncLock
     End Function
@@ -215,16 +254,23 @@ Public Class Form1
                 Console.WriteLine("Stack Trace: " & ex.StackTrace)
             End Try
         End While
+    End Sub
 
-        Console.WriteLine("ReceiveData thread exiting.")
+    ' シリアル通信でコマンドを送信するメソッド
+    Private Sub SendCommand(command As String)
+        SyncLock SerialPort1
+            ' コマンドを送信
+            SerialPort1.WriteLine(command)
+            MessageBox.Show($"設定を送信しました。{vbCrLf} {command}")
+        End SyncLock
     End Sub
 
     ' 磁場のスイープを開始するボタンのクリックイベント
     Private Sub SiftMagButton_Click(sender As Object, e As EventArgs) Handles SiftMagButton.Click
+        StartReceiveThread()
         CheckHeaterStatus()
-
         If HeaterStatus = 0 Then ' ヒーターがOFFの場合
-            SendQuery("SWEEP MAG FAST")
+            SendCommand("SWEEP MAG FAST")
             StartTimer(Timer1, isMoving1) ' タイマーを開始
         Else
             MessageBox.Show("ヒーターがONです。")
@@ -233,10 +279,10 @@ Public Class Form1
 
     ' ゼロスイープを開始するボタンのクリックイベント
     Private Sub SiftZeroButton_Click(sender As Object, e As EventArgs) Handles SiftZeroButton.Click
+        StartReceiveThread()
         CheckHeaterStatus()
-
         If HeaterStatus = 0 Then ' ヒーターがOFFの場合
-            SendQuery("SWEEP ZERO FAST")
+            SendCommand("SWEEP ZERO FAST")
             StartTimer(Timer1, isMoving1) ' タイマーを開始
         Else
             MessageBox.Show("ヒーターがONです。")
@@ -245,15 +291,17 @@ Public Class Form1
 
     ' 上限スイープを開始するボタンのクリックイベント
     Private Sub GoToHiButton_Click(sender As Object, e As EventArgs) Handles GoToHiButton.Click
+        StartReceiveThread()
         Limit = SendQuery("ULIM?").Trim()
-        SendQuery("SWEEP UP")
+        SendCommand("SWEEP UP")
         StartTimer(Timer2, isMoving2) ' タイマーを開始
     End Sub
 
     ' 下限スイープを開始するボタンのクリックイベント
     Private Sub GoToLowButton_Click(sender As Object, e As EventArgs) Handles GoToLowButton.Click
+        StartReceiveThread()
         Limit = SendQuery("LLIM?").Trim()
-        SendQuery("SWEEP DOWN")
+        SendCommand("SWEEP DOWN")
         StartTimer(Timer2, isMoving2) ' タイマーを開始
     End Sub
 
@@ -268,7 +316,7 @@ Public Class Form1
         If Not isMoving Then
             DisableButtons() ' ボタンを無効化
             sameValueCount = 0
-            timer.Interval = 1000 ' 1秒間隔でタイマーを設定
+            timer.Interval = 3000 ' 3秒間隔でタイマーを設定
             isMoving = True
             timer.Start() ' タイマーを開始
         End If
@@ -305,7 +353,7 @@ Public Class Form1
             SweepStateL.Text = $"残り {10 - sameValueCount} カウント"
         End If
 
-        ' 同じ値が10回続いたらタイマーを停止し完了を通知
+        ' 同じ値が5回続いたらタイマーを停止し完了を通知
         If sameValueCount >= 10 Or pauseFlag = True Then
             timer.Stop()
             isMoving = False
@@ -319,13 +367,10 @@ Public Class Form1
         End If
     End Sub
 
+    ' 一時停止ボタンのクリックイベント
     Private Sub PauseButton_Click(sender As Object, e As EventArgs) Handles PauseButton.Click
-        If isMoving1 Then
-            SendQuery("SWEEP PAUSE")
-        End If
-
-        If isMoving2 Then
-            SendQuery("SWEEP PAUSE")
+        If isMoving1 OrElse isMoving2 Then
+            SendCommand("SWEEP PAUSE")
         End If
         pauseFlag = True
     End Sub
@@ -336,18 +381,17 @@ Public Class Form1
         DisableButtons() ' ボタンを一時的に無効化
 
         If HeaterStatus = 1 Then
-            SendQuery("PSHTR OFF")
+            SendCommand("PSHTR OFF")
             HeaterButton.Text = "OFF"
             HeaterButton.BackColor = SystemColors.Control
         Else
-            SendQuery("PSHTR ON")
+            SendCommand("PSHTR ON")
             HeaterButton.Text = "ON"
             HeaterButton.BackColor = Color.LightGreen
         End If
-
         ' 300秒のカウントダウンを開始
         Await CountdownAsync(300)
-
+        StartReceiveThread()
         UpdateFieldInfo()
     End Sub
 
@@ -362,14 +406,16 @@ Public Class Form1
     ' 高いリミット値を設定するボタンのクリックイベント
     Private Sub HiSETButton_Click(sender As Object, e As EventArgs) Handles HiSETButton.Click
         Dim command As String = $"ULIM {HiTB.Text}"
-        SendQuery(command)
+        StartReceiveThread()
+        SendCommand(command)
         UpdateFieldInfo()
     End Sub
 
     ' 低いリミット値を設定するボタンのクリックイベント
     Private Sub LowSetButton_Click(sender As Object, e As EventArgs) Handles LowSetButton.Click
         Dim command As String = $"LLIM {LowTB.Text}"
-        SendQuery(command)
+        StartReceiveThread()
+        SendCommand(command)
         UpdateFieldInfo()
     End Sub
 
@@ -384,7 +430,8 @@ Public Class Form1
         If Not ValidateRate(rate, 0) Then Return
 
         Dim command As String = $"RATE 0 {Rate0TB.Text}"
-        SendQuery(command)
+        StartReceiveThread()
+        SendCommand(command)
         UpdateFieldInfo()
     End Sub
 
@@ -399,7 +446,8 @@ Public Class Form1
         If Not ValidateRate(rate, 1) Then Return
 
         Dim command As String = $"RATE 1 {Rate1TB.Text}"
-        SendQuery(command)
+        StartReceiveThread()
+        SendCommand(command)
         UpdateFieldInfo()
     End Sub
 
@@ -414,14 +462,16 @@ Public Class Form1
         If Not ValidateRate(rate, 2) Then Return
 
         Dim command As String = $"RATE 2 {Rate2TB.Text}"
-        SendQuery(command)
+        StartReceiveThread()
+        SendCommand(command)
         UpdateFieldInfo()
     End Sub
 
     ' 単位を設定するボタンのクリックイベント
     Private Sub UNITSETButton_Click(sender As Object, e As EventArgs) Handles UNITSETButton.Click
         Dim command As String = $"UNITS {ComboBox1.Text}"
-        SendQuery(command)
+        StartReceiveThread()
+        SendCommand(command)
         UpdateFieldInfo()
     End Sub
 
@@ -442,10 +492,32 @@ Public Class Form1
 
         If rate > maxRate Then
             MessageBox.Show($"エラー： 範囲は0～{maxRate}")
+            StartReceiveThread()
             UpdateFieldInfo()
             Return False
         End If
 
         Return True
     End Function
+
+    ' フィールド情報を再読み込みするボタンのクリックイベント
+    Private Sub ReLoad_Click(sender As Object, e As EventArgs) Handles ReLoad.Click
+        StartReceiveThread()
+        UpdateFieldInfo()
+    End Sub
+
+    ' モードを切り替えるボタンのクリックイベント
+    Private Sub ModeButton_Click(sender As Object, e As EventArgs) Handles ModeButton.Click
+        If ModeButton.Text = "REMOTE" Then
+            StartReceiveThread()
+            SendCommand("LOCAL")
+            ModeButton.Text = "LOCAL"
+            UpdateFieldInfo()
+        Else
+            StartReceiveThread()
+            SendCommand("REMOTE")
+            ModeButton.Text = "REMOTE"
+            UpdateFieldInfo()
+        End If
+    End Sub
 End Class

@@ -30,6 +30,7 @@ Public Class Form1
     Private isMoving2 As Boolean = False
     Private Limit As String
 
+    Private countdownSeconds As Integer = 300
     ' フォームがロードされたときに呼び出されるメソッド
     Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Me.ComboBox1.Items.AddRange({"T", "A", "G"}) ' 単位選択のコンボボックスに項目を追加
@@ -47,14 +48,18 @@ Public Class Form1
         End With
         SerialPort1.Open()
         StartReceiveThread()
-        SendCommand("REMOTE")
+        SyncLock SerialPort1
+            SerialPort1.WriteLine("REMOTE")
+        End SyncLock
         UpdateFieldInfo()
     End Sub
 
     ' フォームが閉じられるときにシリアルポートを閉じる処理
     Private Sub Form1_FormClosing(sender As Object, e As FormClosingEventArgs) Handles MyBase.FormClosing
         ' リモートモードを終了
-        SendCommand("LOCAL")
+        SyncLock SerialPort1
+            SerialPort1.WriteLine("LOCAL")
+        End SyncLock
         ' 受信スレッドを停止
         cancelReceive = True
         If receiveThread IsNot Nothing AndAlso receiveThread.IsAlive Then
@@ -261,8 +266,8 @@ Public Class Form1
         SyncLock SerialPort1
             ' コマンドを送信
             SerialPort1.WriteLine(command)
-            MessageBox.Show($"設定を送信しました。{vbCrLf} {command}")
         End SyncLock
+        MessageBox.Show($"設定を送信しました。{vbCrLf} {command}")
     End Sub
 
     ' 磁場のスイープを開始するボタンのクリックイベント
@@ -362,6 +367,7 @@ Public Class Form1
             Else
                 MessageBox.Show("Completed")
             End If
+
             UpdateFieldInfo() ' 情報を再取得
             pauseFlag = False
         End If
@@ -376,8 +382,7 @@ Public Class Form1
     End Sub
 
     ' ヒーターのON/OFFを切り替えるボタンのクリックイベント
-    Private Async Sub HeaterONOFFButton_Click(sender As Object, e As EventArgs) Handles HeaterButton.Click
-
+    Private Sub HeaterONOFFButton_Click(sender As Object, e As EventArgs) Handles HeaterButton.Click
         DisableButtons() ' ボタンを一時的に無効化
 
         If HeaterStatus = 1 Then
@@ -389,81 +394,95 @@ Public Class Form1
             HeaterButton.Text = "ON"
             HeaterButton.BackColor = Color.LightGreen
         End If
-        ' 300秒のカウントダウンを開始
-        Await CountdownAsync(300)
-        StartReceiveThread()
-        UpdateFieldInfo()
+
+        ' カウントダウンの初期化と開始
+        countdownSeconds = 300
+        Timer3.Interval = 1000
+        Timer3.Start()
     End Sub
 
-    ' 300秒のカウントダウンを行うメソッド
-    Public Async Function CountdownAsync(seconds As Integer) As Task
-        For i As Integer = seconds To 1 Step -1
-            HeaterStateL.Text = $"待機中... {i} 秒"
-            Await Task.Delay(1000) ' 1秒待機
-        Next
-    End Function
-
+    ' Timer3のTickイベントでカウントダウンを実行
+    Private Sub Timer3_Tick(sender As Object, e As EventArgs) Handles Timer3.Tick
+        If countdownSeconds > 0 Then
+            countdownSeconds -= 1
+            HeaterStateL.Text = $"待機中... {countdownSeconds} 秒"
+        Else
+            Timer3.Stop()
+            StartReceiveThread()
+            MessageBox.Show("Completed")
+            UpdateFieldInfo() ' 情報を再取得
+        End If
+    End Sub
     ' 高いリミット値を設定するボタンのクリックイベント
     Private Sub HiSETButton_Click(sender As Object, e As EventArgs) Handles HiSETButton.Click
-        Dim command As String = $"ULIM {HiTB.Text}"
         StartReceiveThread()
-        SendCommand(command)
+        ' 正規表現で数値部分のみを抽出
+        Dim Limit As String = System.Text.RegularExpressions.Regex.Match(HiTB.Text, "\d+(\.\d+)?").Value
+        If Not String.IsNullOrEmpty(Limit) Then
+            Dim command As String = $"ULIM {Limit}"
+            SendCommand(command)
+        Else
+            MessageBox.Show("有効な数値が入力されていません")
+        End If
         UpdateFieldInfo()
     End Sub
 
     ' 低いリミット値を設定するボタンのクリックイベント
     Private Sub LowSetButton_Click(sender As Object, e As EventArgs) Handles LowSetButton.Click
-        Dim command As String = $"LLIM {LowTB.Text}"
         StartReceiveThread()
-        SendCommand(command)
+        ' 正規表現で数値部分のみを抽出
+        Dim Limit As String = System.Text.RegularExpressions.Regex.Match(LowTB.Text, "\d+(\.\d+)?").Value
+        If Not String.IsNullOrEmpty(Limit) Then
+            Dim command As String = $"LLIM {Limit}"
+            SendCommand(command)
+        Else
+            MessageBox.Show("有効な数値が入力されていません")
+        End If
         UpdateFieldInfo()
     End Sub
 
     ' 低速のスイープレートを設定するボタンのクリックイベント
     Private Sub Rate0SETButton_Click(sender As Object, e As EventArgs) Handles Rate0SETButton.Click
-        Dim rate As Double
-        If Not Double.TryParse(Rate0TB.Text, rate) Then
-            MessageBox.Show("無効な値です。正しい数値を入力してください。")
-            Return
-        End If
-
-        If Not ValidateRate(rate, 0) Then Return
-
-        Dim command As String = $"RATE 0 {Rate0TB.Text}"
         StartReceiveThread()
-        SendCommand(command)
+        ' 正規表現で数値部分のみを抽出
+        Dim Rate As String = System.Text.RegularExpressions.Regex.Match(Rate0TB.Text, "\d+(\.\d+)?").Value
+        If Not String.IsNullOrEmpty(Rate) Then
+            If Not ValidateRate(Rate, 0) Then Return
+            Dim command As String = $"RATE 0 {Rate}"
+            SendCommand(command)
+        Else
+            MessageBox.Show("有効な数値が入力されていません")
+        End If
         UpdateFieldInfo()
     End Sub
 
     ' 中速のスイープレートを設定するボタンのクリックイベント
     Private Sub Rate1SETButton_Click(sender As Object, e As EventArgs) Handles Rate1SETButton.Click
-        Dim rate As Double
-        If Not Double.TryParse(Rate1TB.Text, rate) Then
-            MessageBox.Show("無効な値です。正しい数値を入力してください。")
-            Return
-        End If
-
-        If Not ValidateRate(rate, 1) Then Return
-
-        Dim command As String = $"RATE 1 {Rate1TB.Text}"
         StartReceiveThread()
-        SendCommand(command)
+        ' 正規表現で数値部分のみを抽出
+        Dim Rate As String = System.Text.RegularExpressions.Regex.Match(Rate1TB.Text, "\d+(\.\d+)?").Value
+        If Not String.IsNullOrEmpty(Rate) Then
+            If Not ValidateRate(Rate, 1) Then Return
+            Dim command As String = $"RATE 1 {Rate}"
+            SendCommand(command)
+        Else
+            MessageBox.Show("有効な数値が入力されていません")
+        End If
         UpdateFieldInfo()
     End Sub
 
     ' 高速のスイープレートを設定するボタンのクリックイベント
     Private Sub Rate2SETButton_Click(sender As Object, e As EventArgs) Handles Rate2SETButton.Click
-        Dim rate As Double
-        If Not Double.TryParse(Rate2TB.Text, rate) Then
-            MessageBox.Show("無効な値です。正しい数値を入力してください。")
-            Return
-        End If
-
-        If Not ValidateRate(rate, 2) Then Return
-
-        Dim command As String = $"RATE 2 {Rate2TB.Text}"
         StartReceiveThread()
-        SendCommand(command)
+        ' 正規表現で数値部分のみを抽出
+        Dim Rate As String = System.Text.RegularExpressions.Regex.Match(Rate2TB.Text, "\d+(\.\d+)?").Value
+        If Not String.IsNullOrEmpty(Rate) Then
+            If Not ValidateRate(Rate, 2) Then Return
+            Dim command As String = $"RATE 2 {Rate}"
+            SendCommand(command)
+        Else
+            MessageBox.Show("有効な数値が入力されていません")
+        End If
         UpdateFieldInfo()
     End Sub
 
